@@ -27,5 +27,22 @@ public class PacienteRepositorio
     return _contexto.Pacientes.ToList();
   }
 
+  public Paciente BuscarPacientePeloId(int id)
+  {
+    return _contexto.Pacientes.FirstOrDefault(paciente => paciente.Id == id);
+  }
+
+  public void RemoverPaciente(Paciente paciente)
+  {
+    _contexto.Remove(paciente);
+
+    _contexto.SaveChanges();
+  }
+
+  public void AtualizarPaciente()
+  {
+    _contexto.SaveChanges();
+  }
+
 
 }

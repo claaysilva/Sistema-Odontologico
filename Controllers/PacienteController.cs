@@ -23,4 +23,30 @@ public class PacienteController : ControllerBase
 
     return pacienteResposta;
   }
+
+  [HttpGet]
+  public List<PacienteResposta> GetPacientes()
+  {
+    return _pacienteServico.ListarPacientes();
+  }
+
+  [HttpGet("{id:int}")]
+  public PacienteResposta GetPaciente([FromRoute] int id)
+  {
+    return _pacienteServico.BuscarPacientePeloId(id);
+  }
+
+  [HttpDelete("{id:int}")]
+  public void DeletePaciente([FromRoute] int id)
+  {
+    _pacienteServico.RemoverPaciente(id);
+  }
+
+  [HttpPut("{id:int}")]
+  public PacienteResposta PutPaciente([FromRoute] int id, [FromBody] PacienteCriarAtualizarRequisicao pacienteEditado)
+  {
+    var pacienteResposta = _pacienteServico.AtualizarProcedimento(id, pacienteEditado);
+
+    return pacienteResposta;
+  }
 }

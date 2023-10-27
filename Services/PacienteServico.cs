@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sistema_Odontologico.DTO.Paciente;
 using Sistema_Odontologico.Models;
 using Sistema_Odontologico.Repositorio;
@@ -32,16 +33,96 @@ public class PacienteServico
     paciente = _pacienteRepositorio.CriarPaciente(paciente);
 
     //copiando os dados do modelo para a resposta
-    var pacienteResposta = new PacienteResposta();
-    paciente.Id = novoPaciente.Id;
-    paciente.Nome = novoPaciente.Nome;
-    paciente.DataNascimento = novoPaciente.DataNascimento;
-    paciente.Genero = novoPaciente.Genero;
-    paciente.Endereco = novoPaciente.Endereco;
-    paciente.Telefone = novoPaciente.Telefone;
+    var pacienteResposta = ConverterModeloParaResposta(paciente);
 
     //Retornando resposta para o controlador
     return pacienteResposta;
 
   }
+
+  public List<PacienteResposta> ListarPacientes()
+  {
+
+    //Pedir ao repositorio todos os procedimentos (modelo)
+    var pacientes = _pacienteRepositorio.ListarPacientes();
+
+    //copiar os dados dos modelos para as respostas
+    List<PacienteResposta> pacienteRespostas = new(); //lista vazia de respostas
+
+    foreach (var paciente in pacientes)
+    {
+      //Copiando do modelo para a resposta
+      var pacienteResposta = ConverterModeloParaResposta(paciente);
+
+      //Adicionar na lista de respostas
+      pacienteRespostas.Add(pacienteResposta);
+    }
+
+    //retornar a lista de respostas
+    return pacienteRespostas;
+
+  }
+
+  public PacienteResposta BuscarPacientePeloId(int id)
+  {
+    var paciente = _pacienteRepositorio.BuscarPacientePeloId(id);
+
+    if (paciente is null)
+    {
+      return null;
+    }
+
+    var pacienteResposta = ConverterModeloParaResposta(paciente);
+
+    return pacienteResposta;
+  }
+
+  public void RemoverPaciente(int id)
+  {
+    var paciente = _pacienteRepositorio.BuscarPacientePeloId(id);
+
+    if (paciente is null)
+    {
+      return;
+    }
+
+    _pacienteRepositorio.RemoverPaciente(paciente);
+
+  }
+
+  public PacienteResposta AtualizarProcedimento(int id, PacienteCriarAtualizarRequisicao pacienteEditado)
+  {
+    var paciente = _pacienteRepositorio.BuscarPacientePeloId(id);
+
+    if (paciente is null)
+    {
+      return null;
+    }
+
+    paciente.Nome = pacienteEditado.Nome;
+    paciente.DataNascimento = pacienteEditado.DataNascimento;
+    paciente.Genero = pacienteEditado.Genero;
+    paciente.Endereco = pacienteEditado.Endereco;
+    paciente.Telefone = pacienteEditado.Telefone;
+
+    _pacienteRepositorio.AtualizarPaciente();
+
+    var pacienteResposta = ConverterModeloParaResposta(paciente);
+
+    return pacienteResposta;
+  }
+
+  private PacienteResposta ConverterModeloParaResposta(Paciente modelo)
+  {
+    var pacienteResposta = new PacienteResposta();
+    pacienteResposta.Id = modelo.Id;
+    pacienteResposta.Nome = modelo.Nome;
+    pacienteResposta.DataNascimento = modelo.DataNascimento;
+    pacienteResposta.Genero = modelo.Genero;
+    pacienteResposta.Endereco = modelo.Endereco;
+    pacienteResposta.Telefone = modelo.Telefone;
+
+    return pacienteResposta;
+  }
+
 }
